@@ -8,7 +8,8 @@
 import Foundation
 
 struct FeedItem {
-    var title: String
-    var image: String
-    var description: String
+    var id: UUID
+    var imageURL: URL?
+    var description: String?
+    var location: String?
 }
