@@ -12,4 +12,5 @@ struct FeedItem {
     var imageURL: URL?
     var description: String?
     var location: String?
+    var number: Int
 }
