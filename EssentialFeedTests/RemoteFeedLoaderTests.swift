@@ -46,16 +46,15 @@ class RemoteFeedLoaderTests: XCTestCase {
     
     func test_load_deliversErrorOnNon200HTTPResponse() {
         let (sut, client) = makeSUT()
-
-        var capturedError = [RemoteFeedLoader.Error]()
         
-        sut.load{ capturedError.append($0) }
-        
-        let code = 400
-        client.complete(withStatusCode: code)
-        
-        XCTAssertEqual(capturedError, [.invalidData])
-        
+        let invalidDataCodeSamples =  [199, 201, 300, 400, 500]
+        invalidDataCodeSamples.enumerated().forEach({index, code in
+            var capturedError = [RemoteFeedLoader.Error]()
+            sut.load{capturedError.append($0)}
+            client.complete(withStatusCode: code, at: index)
+            XCTAssertEqual(capturedError, [.invalidData])
+            capturedError = []
+        })
     }
     //MARK:- Helpers
     
@@ -67,6 +66,7 @@ class RemoteFeedLoaderTests: XCTestCase {
     
     private class HTTPCLientSpy: HTTPClient {
         private var messages = [(url: URL, completion: (Error?, HTTPURLResponse?) -> Void)]()
+        var completions = [(Error) -> Void]()
         var requestedURLs: [URL] {
             return messages.map{$0.url}
         }
