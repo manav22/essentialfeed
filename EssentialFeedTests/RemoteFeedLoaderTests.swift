@@ -52,7 +52,7 @@ class RemoteFeedLoaderTests: XCTestCase {
         })
     }
     
-    func test_load_invalidJsonDataHTTPURLResponse() {
+    func test_load_invalidJsonDataOn200HTTPURLResponse() {
         let (sut, client) = makeSUT()
         
         expect(sut, toCompleteWithError: .failure(.invalidData), when: {
@@ -68,6 +68,32 @@ class RemoteFeedLoaderTests: XCTestCase {
         expect(sut, toCompleteWithError: .success([]), when: {
             let emptyListJSON = Data("{\"items\": []}".utf8)
             client.complete(withStatusCode: 200, data: emptyListJSON)
+        })
+    }
+    
+    func test_load_deliverItemsOn200HTTPResponseWithJSONItems() {
+        let (sut, client) = makeSUT()
+        
+        let item1 = FeedItem(id: UUID(), imageURL: URL(string: "https://a-url.com"), description: nil, location: nil)
+        let item1JSON = [
+            "id" : item1.id.uuidString,
+            "image" : item1.imageURL?.absoluteString
+        ]
+        
+        let item2 = FeedItem(id: UUID(), imageURL: URL(string: "https://a-another-url.com"), description: "a description", location: "a location")
+        let item2JSON = [
+            "id" : item2.id.uuidString,
+            "description" : item2.description,
+            "location" : item2.location,
+            "image" : item2.imageURL?.absoluteString,
+        ]
+        
+        let itemsJSON = [
+            "items" : [item1JSON, item2JSON]
+        ]
+        expect(sut, toCompleteWithError: .success([item1, item2]), when: {
+            let json = try! JSONSerialization.data(withJSONObject: itemsJSON)
+            client.complete(withStatusCode: 200, data: json )
         })
     }
     //MARK:- Helpers

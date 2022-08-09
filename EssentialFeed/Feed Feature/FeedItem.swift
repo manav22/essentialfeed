@@ -12,5 +12,20 @@ public struct FeedItem: Equatable {
     var imageURL: URL?
     var description: String?
     var location: String?
-    var number: Int
+    
+    public init(id: UUID, imageURL: URL?, description: String?, location: String?) {
+        self.id = id
+        self.description = description
+        self.location = location
+        self.imageURL = imageURL
+    }
+}
+
+extension FeedItem: Decodable {
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case description
+        case location
+        case imageURL = "image"
+    }
 }
